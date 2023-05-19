@@ -2,6 +2,10 @@
 
 import * as React from "react";
 
-export const Button = () => {
-  return <button onClick={() => alert("boop")}>Boop</button>;
+type Props = {
+  text?: string
+}
+
+export const Button: React.FC<Props> = (props) => {
+  return <button onClick={() => alert("boop")}>{props.text || 'Boop'}</button>;
 };
