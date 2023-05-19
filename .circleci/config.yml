@@ -30,9 +30,12 @@ workflows:
     jobs:
       - config
       - path-filtering/filter:
+          requires:
+            - config
           pre-steps:
             - attach_workspace:
                 at: ./tmp
+          name: check-updated-files
           base-revision: main
           mapping: |
             apps/web/.* build-web true
