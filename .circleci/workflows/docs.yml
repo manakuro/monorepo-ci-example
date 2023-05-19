@@ -1,0 +1,30 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+parameters:
+  build-docs:
+    type: boolean
+    default: false
+
+jobs:
+  docs-build:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          command: yarn lint --filter=docs
+          name: Run lint
+      - run:
+          command: yarn build --filter=docs
+          name: Build app
+
+workflows:
+  docs-build:
+    when: << pipeline.parameters.build-docs >>
+    jobs:
+      - docs-build
+
