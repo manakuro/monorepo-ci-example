@@ -17,11 +17,11 @@ jobs:
       - run:
           name: Merge config files
           command: |
-            mkdir -p /tmp
-            yq eval-all '. as $item ireduce ({}; . * $item )' ./.circleci/workflows/*.yml > /tmp/merged.yml
-            cat /tmp/merged.yml
+            mkdir -p ./tmp/
+            yq eval-all '. as $item ireduce ({}; . * $item )' ./.circleci/workflows/*.yml > ./tmp/merged.yml
+            cat ./tmp/merged.yml
       - persist_to_workspace:
-          root: /tmp
+          root: ./tmp
           paths:
             - merged.yml
 
@@ -32,11 +32,10 @@ workflows:
       - path-filtering/filter:
           pre-steps:
             - attach_workspace:
-                at: /tmp
+                at: ./tmp
           base-revision: main
           mapping: |
             apps/web/.* build-web true
-            apps/docs/.* build-docs true
 
-          config-path: /tmp/merged.yml
+          config-path: ./tmp/merged.yml
 
