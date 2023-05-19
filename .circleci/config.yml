@@ -3,37 +3,42 @@ setup: true
 orbs:
   path-filtering: circleci/path-filtering@0.1.5
 
+jobs:
+  setup:
+    docker:
+      - image: cimg/go:1.20.4
+    steps:
+      - checkout
+      - run:
+          name: Install yq
+          command: |
+            go install github.com/mikefarah/yq/v4@latest
+            yq --version
+      - run:
+          name: Merge config files
+          command: |
+            mkdir -p /tmp/
+            yq eval-all '. as $item ireduce ({}; . * $item )' ./.circleci/workflows/*.yml > /tmp/merged.yml
+            cat /tmp/merged.yml
+      - persist_to_workspace:
+          root: /tmp
+          paths:
+            - merged.yml
+
 workflows:
   config:
     jobs:
-      - merge-config:
-          docker:
-            - image: cimg/go:1.20.4
-          steps:
-            - checkout
-            - run:
-                name: Install yq
-                command: |
-                  go install github.com/mikefarah/yq/v4@latest
-                  yq --version
-            - run:
-                name: Merge config files
-                command: |
-                  mkdir -p /tmp
-                  yq eval-all '. as $item ireduce ({}; . * $item )' ./.circleci/workflows/*.yml > /tmp/merged.yml
-                  cat /tmp/merged.yml
-            - persist_to_workspace:
-                root: /tmp
-                paths:
-                  - merged.yml
+      - setup
       - path-filtering/filter:
+          requires:
+            - setup
+          workspace_path: .
+          base-revision: main
           pre-steps:
             - attach_workspace:
                 at: /tmp
-          base-revision: main
+          config-path: /tmp/merged.yml
+
           mapping: |
             apps/web/.* build-web true
-            apps/docs/.* build-docs true
-
-          config-path: /tmp/merged.yml
 
