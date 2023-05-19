@@ -1,0 +1,30 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+parameters:
+  build-web:
+    type: boolean
+    default: false
+
+jobs:
+  web-build:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          command: yarn lint --filter=web
+          name: Run lint
+      - run:
+          command: yarn build --filter=web
+          name: Build app
+
+workflows:
+  web-build:
+    when: << pipeline.parameters.build-web >>
+    jobs:
+      - web-build
+
