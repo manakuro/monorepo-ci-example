@@ -1,0 +1,38 @@
+name: Web
+
+on:
+  pull_request:
+    paths:
+      - 'apps/web/**'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: yarn
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        id: node_modules_cache_id
+        with:
+          path: node_modules
+          key: v1-yarn-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          restore-keys: |
+            v1-yarn-
+
+      - name: Install dependencies
+        if: steps.node_modules_cache_id.outputs.cache-hit != 'true'
+        run: yarn install --frozen-lockfile --silent
+
+      - name: Lint
+        run: yarn lint --filter=web
+
+      - name: Build
+        run: yarn build --filter=web
