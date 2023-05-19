@@ -4,7 +4,7 @@ orbs:
   path-filtering: circleci/path-filtering@0.1.5
 
 jobs:
-  config:
+  setup:
     docker:
       - image: cimg/go:1.20.4
     steps:
@@ -28,10 +28,10 @@ jobs:
 workflows:
   config:
     jobs:
-      - config
+      - setup
       - path-filtering/filter:
           requires:
-            - config
+            - setup
           workspace_path: .
           base-revision: main
           pre-steps:
