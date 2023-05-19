@@ -32,13 +32,13 @@ workflows:
       - path-filtering/filter:
           requires:
             - config
+          workspace_path: .
+          base-revision: main
           pre-steps:
             - attach_workspace:
                 at: ./tmp
-          name: check-updated-files
-          base-revision: main
+          config-path: ./tmp/merged.yml
+
           mapping: |
             apps/web/.* build-web true
-
-          config-path: ./tmp/merged.yml
 
